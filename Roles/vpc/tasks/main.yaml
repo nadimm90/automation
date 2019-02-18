@@ -1,0 +1,24 @@
+---
+- name: Generate SSH keys
+  shell: ssh-keygen -b 4096 -t rsa -f ~/.ssh/nadim -q -N ""
+  args:
+    creates: ~/.ssh/nadim
+
+- name: Import public key to aws 
+  command: aws ec2 --profile import-key-pair --key-name k8s-key --public-key-material "$(cat ~/.ssh/nadim.pub)"
+
+- name: launch ansible cloudformation example
+  cloudformation:
+    stack_name: "ansible-cloudformation" 
+    state: present
+    region: us-east-1 
+    disable_rollback: true
+    template: files/cloudformation-example.json
+  args:
+    template_parameters:
+      KeyName: jmartin
+      DiskType: ephemeral # what is this 
+      InstanceType: m1.small  
+      ClusterSize: 3 # what is this 
+    tags:
+      Stack: ansible-cloudformation

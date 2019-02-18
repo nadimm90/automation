@@ -1,0 +1,144 @@
+---
+
+# install aws command line 
+- name: installation | ensure awscli is installed
+  pip:
+    name=awscli
+    version="{{ awscli_version }}"
+sudo: yes
+
+
+#ORRRRRRRRRRRRRR    
+
+#The below URL will install aws command line and do the configuration there is main.yaml you need to fill 
+# https://github.com/arbabnazar/ansible-roles/tree/master/awscli 
+
+
+# generating new ssh keys on your linux machine (private and public)
+# check the name of keys (replace id_rsa with the new name I think)
+# check what is -q -N 
+- name: Generate SSH keys
+  shell: ssh-keygen -b 4096 -t rsa -f ~/.ssh/id_rsa -q -N ""
+  args:
+    creates: ~/.ssh/id_rsa
+
+
+    # IMport your keys to aws using command OR check if there is a module 
+- name: Import public key to aws 
+  command: aws ec2 --profile jordan import-key-pair --key-name k8s-key --public-key-material "$(cat ~/.ssh/ec2-Jordan.pub)"
+
+# create vpc by uploading cloudformation stack , you need to get the template put it in files and change 10.0 to 10.1  / where to add the two availability zones 
+# Basic task example
+- name: launch ansible cloudformation example
+  cloudformation:
+    stack_name: "ansible-cloudformation" 
+    state: present
+    region: us-east-1 
+    disable_rollback: true
+    template: files/cloudformation-example.json
+  args:
+    template_parameters:
+      KeyName: jmartin
+      DiskType: ephemeral # what is this 
+      InstanceType: m1.small  
+      ClusterSize: 3 # what is this 
+    tags:
+      Stack: ansible-cloudformation
+
+
+# create security group https://docs.ansible.com/ansible/latest/modules/ec2_group_module.html
+
+- name: example using security group rule descriptions
+  ec2_group:
+    name: "{{ name }}"
+    description: sg with rule descriptions
+    vpc_id: vpc-xxxxxxxx
+    profile: "{{ aws_profile }}"
+    region: us-east-1
+    rules:
+      - proto: tcp
+        ports:
+        - 80
+        cidr_ip: 0.0.0.0/0
+        rule_desc: allow all on port 80
+
+      - proto: tcp
+        ports:
+        - 80
+        cidr_ip: 0.0.0.0/0
+        rule_desc: allow all on port 80
+
+      - proto: tcp
+        ports:
+        - 80
+        cidr_ip: 0.0.0.0/0
+        rule_desc: allow all on port 80
+      - proto: tcp
+        ports:
+        - 80
+        cidr_ip: 0.0.0.0/0
+        rule_desc: allow all on port 80
+ 
+ # tag subnets 
+ # https://docs.ansible.com/ansible/latest/modules/ec2_vpc_subnet_facts_module.html
+
+
+
+
+# create security group https://docs.ansible.com/ansible/latest/modules/ec2_group_module.html
+
+- name: example using security group rule descriptions
+  ec2_group:
+    name: "{{ name }}"
+    description: sg with rule descriptions
+    vpc_id: vpc-xxxxxxxx
+    profile: "{{ aws_profile }}"
+    region: us-east-1
+    rules:
+
+  # list  all amis https://docs.ansible.com/ansible/2.4/ec2_ami_find_module.html  / https://docs.ansible.com/ansible/2.5/modules/ec2_ami_search_module.html
+
+
+  # create intervpc security group 
+  - name: example using security group rule descriptions
+  ec2_group:
+    name: "{{ name }}"
+    description: sg with rule descriptions
+    vpc_id: vpc-xxxxxxxx
+    profile: "{{ aws_profile }}"
+    region: us-east-1
+    rules:
+      - proto: tcp
+        ports:
+        - 80
+        cidr_ip: 0.0.0.0/0
+        rule_desc: allow all on port 80
+
+      - proto: tcp
+        ports:
+        - 80
+        cidr_ip: 0.0.0.0/0
+        rule_desc: allow all on port 80
+
+
+  # create ec2 ansible machine  https://docs.ansible.com/ansible/latest/modules/ec2_module.html
+  - ec2:
+    key_name: mykey
+    instance_type: t2.micro
+    image: ami-123456
+    wait: yes
+    group: webserver
+    count: 3
+    vpc_subnet_id: subnet-29e63245
+    assign_public_ip: yes
+
+
+
+    # elastic ip https://docs.ansible.com/ansible/latest/modules/ec2_eip_module.html
+
+    # create I am role using ansible https://docs.ansible.com/ansible/latest/modules/iam_role_module.html
+    # policies for I am role 
+
+
+
+ 

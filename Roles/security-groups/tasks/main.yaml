@@ -1,0 +1,59 @@
+---
+- name: creating security group devops 
+  ec2_group:
+    name: devops 
+    description: devops
+    vpc_id: vpc-xxxxxxxx
+    profile: "{{ aws_profile }}"
+    region: us-east-1
+    rules:
+      - proto: tcp
+        ports:
+        - 22
+        cidr_ip: 194.126.27.122/32
+        rule_desc: allow all on port 22
+
+      - proto: tcp
+        ports:
+        - 6443
+        cidr_ip: 194.126.27.122/32
+        rule_desc: allow all on port 6443
+
+      - proto: tcp
+        ports:
+        - 80
+        cidr_ip: 194.126.27.122/32
+        rule_desc: allow all on port 80
+      - proto: tcp
+        ports:
+        - 443
+        cidr_ip: 194.126.27.122/32
+        rule_desc: allow all on port 443
+ 
+ - name: creating security group k8s worker
+  ec2_group:
+    name: k8s worker
+    description: k8s-worker
+    vpc_id: vpc-xxxxxxxx
+    profile: "{{ aws_profile }}"
+    region: us-east-1
+ 
+- name: creating security group intervpc
+  ec2_group:
+    name: devops 
+    description: devops
+    vpc_id: vpc-xxxxxxxx
+    profile: "{{ aws_profile }}"
+    region: us-east-1
+    rules:
+      - proto: tcp
+        ports:
+        - 0 -6553
+        cidr_ip: 172.16.0.0/16
+        rule_desc: allow all on port 22
+
+      - proto: tcp
+        ports:
+        - 0-65535
+        cidr_ip: 10.0.0.0/8
+        rule_desc: allow all on port 6443
